@@ -1,7 +1,7 @@
 # Hand Gesture Recognition for Cursor Controlling
 
-This project enables controlling your computer's mouse and keyboard using hand gestures and voice commands, leveraging MediaPipe for hand tracking and Vosk for speech recognition.
-Think of it like holding an invisible mouse: for example, pressing your index finger simulates a left click.
+This project enables controlling your computer's mouse and keyboard using hand gestures and voice commands, leveraging MediaPipe for hand tracking and Vosk for speech recognition.\\
+About the hand interaction, think of it like you are holding an invisible mouse: for example, pressing your index finger simulates a left click.
 
 ## Features
 
@@ -21,9 +21,13 @@ Think of it like holding an invisible mouse: for example, pressing your index fi
     ```sh
     pip install -r requirements.txt
     ```
-    if you are using linux install "sudo apt-get install portaudio19-dev"
+    if you are using linux 
+    
+    ```sh
+    apt-get install portaudio19-dev
+    ```
 
-2. **Download Italian Vosk models:**  
+2. **Download Vosk models:**  
    Place the model folders inside the `models/` directory as shown in the project structure.
 
 ## Usage
@@ -61,6 +65,3 @@ python main.py
 - "comando control v" — Ctrl+V
 - "comando alt tab" — Alt+Tab
 - "comando aiuto" — Show help image
-
-
--
