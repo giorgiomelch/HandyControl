@@ -1,6 +1,6 @@
 # Hand Gesture Recognition for Cursor Controlling
 
-This project enables controlling your computer's mouse and keyboard using hand gestures and voice commands, leveraging MediaPipe for hand tracking and Vosk for speech recognition.\\
+This project enables controlling your computer's mouse and keyboard using hand gestures and voice commands, leveraging MediaPipe for hand tracking and Vosk for speech recognition.\
 About the hand interaction, think of it like you are holding an invisible mouse: for example, pressing your index finger simulates a left click.
 
 ## Features
