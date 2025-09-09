@@ -11,19 +11,32 @@ class HandController:
         self.radii = [int(h/2), int(h/3), int(h/5), int(h/15)]
         self.last_ok_time = 0
         self.ok_cooldown = 2.0
+        
+        self.ok_active = False
+        self.ok_block_time = 1  # blocca click per 1s dopo OK
 
     def handle_one_hand(self, hand, voice_listener):
         if not is_hand_closed(hand):
+            now = time.time()
             ok_sign = detect_ok_sign(hand, False)
             if ok_sign and (time.time() - self.last_ok_time > self.ok_cooldown):
                 voice_listener.trigger_listen()
                 self.last_ok_time = time.time()
-            elif not (detect_thumb_down(hand) or detect_thumb_up(hand)):
-                detect_left_clicking(hand)
-                detect_cursor_movement(hand, self.w, self.h, self.cx, self.cy, self.radii)
-                detect_right_clicking(hand)
-        detect_thumb_down(hand) 
-        detect_thumb_up(hand)
+                self.last_ok_time = now
+                self.ok_active = True
+                self.ok_start_time = now
+            # Blocca click subito dopo OK
+            elif self.ok_active and (now - self.ok_start_time < self.ok_block_time):
+                pass  # ignora click temporaneamente
+            else:
+                self.ok_active = False
+                # esegui gesti normali
+                if not (detect_thumb_down(hand) or detect_thumb_up(hand)):
+                    detect_left_clicking(hand)
+                    detect_cursor_movement(hand, self.w, self.h, self.cx, self.cy, self.radii)
+                    detect_right_clicking(hand)
+            detect_thumb_down(hand) 
+            detect_thumb_up(hand)
 
     def handle_two_hands(self, hand1, hand2):
         if (detect_thumb_down(hand1, 2) and is_hand_closed(hand2)) or (detect_thumb_down(hand2, 2) and is_hand_closed(hand1)):
@@ -90,11 +103,11 @@ def detect_cursor_movement(hand_landmarks, w, h, center_x, center_y, raggi):
         distance = math.dist((center_hand_x, center_hand_y), (center_x, center_y))
         gain = 0
         if distance > raggi[3]:  
-            gain = 50
+            gain = 40
         elif distance > raggi[2]:
-            gain = 150
+            gain = 100
         elif distance > raggi[1]:
-            gain = 400
+            gain = 300
         elif distance > raggi[0]:
             gain = 1000
         x_movement = -(center_hand_x - center_x) / w * gain
