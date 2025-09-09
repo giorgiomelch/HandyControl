@@ -1,6 +1,27 @@
 from pynput.keyboard import Controller, Key
 import cv2
 import os
+from PIL import Image
+
+def show_help():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(script_dir, "imgs/aiuto.jpg")
+
+    help_img = cv2.imread(image_path)
+    if help_img is None:
+        print(f"Errore: OpenCV non riesce a leggere {image_path}")
+        return
+
+    cv2.namedWindow("Comandi disponibili", cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty("Comandi disponibili", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    cv2.imshow("Comandi disponibili", help_img)
+
+    # Rimane aperta finché l’utente non preme ESC o Q
+    while True:
+        if cv2.waitKey(1) & 0xFF in (27, ord('q')):
+            break
+
+    cv2.destroyWindow("Comandi disponibili")
 
 keyboard = Controller()
 
@@ -57,15 +78,18 @@ def execute_command(text: str):
             keyboard.release(Key.tab)
         print("ALT + TAB (cambia finestra)")
     elif "comando aiuto" in text:
-        # Percorso dell'immagine (da adattare)
-        image_path = "imgs/aiuto.png"  
+        print("AIUTO: compare schermata di guida")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(script_dir, "imgs/aiuto.jpg")
+
         if os.path.exists(image_path):
-            help_img = cv2.imread(image_path)
-            cv2.namedWindow("Comandi disponibili", cv2.WINDOW_NORMAL)
-            cv2.imshow("Comandi disponibili", help_img)
-            cv2.waitKey(0)  # rimane aperta finché l'utente non preme un tasto
-            cv2.destroyWindow("Comandi disponibili")
-        
+            try:
+                Image.open(image_path).show()
+            except Exception as e:
+                print("Errore mostrando l'immagine:", e)
+        else:
+            print("Immagine non trovata:", image_path)
+
     else:
         # scrive il testo normalmente
         keyboard.type(text + " ")
