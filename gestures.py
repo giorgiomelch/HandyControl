@@ -22,11 +22,13 @@ class HandController:
                 detect_left_clicking(hand)
                 detect_cursor_movement(hand, self.w, self.h, self.cx, self.cy, self.radii)
                 detect_right_clicking(hand)
+        detect_thumb_down(hand) 
+        detect_thumb_up(hand)
 
     def handle_two_hands(self, hand1, hand2):
         if (detect_thumb_down(hand1, 2) and is_hand_closed(hand2)) or (detect_thumb_down(hand2, 2) and is_hand_closed(hand1)):
             mouse.zoom_out()
-        elif (detect_thumb_up(hand1, 2) and is_hand_closed(hand2)) and (detect_thumb_up(hand2, 2) and is_hand_closed(hand1)):
+        elif (detect_thumb_up(hand1, 2) and is_hand_closed(hand2)) or (detect_thumb_up(hand2, 2) and is_hand_closed(hand1)):
             mouse.zoom_in()
         elif detect_thumb_down(hand1) and detect_thumb_down(hand2):
             return True
@@ -90,11 +92,11 @@ def detect_cursor_movement(hand_landmarks, w, h, center_x, center_y, raggi):
         if distance > raggi[3]:  
             gain = 50
         elif distance > raggi[2]:
-            gain = 100
+            gain = 150
         elif distance > raggi[1]:
-            gain = 300
+            gain = 400
         elif distance > raggi[0]:
-            gain = 800
+            gain = 1000
         x_movement = -(center_hand_x - center_x) / w * gain
         y_movement =  (center_hand_y - center_y) / h * gain
         mouse.move(x_movement, y_movement)
@@ -135,8 +137,8 @@ def detect_left_clicking(hand_landmarks):
         if click_in_progress:
             press_duration = now - press_start_time
 
-            if press_duration < 0.2:  # tap veloce
-                if now - last_click_time < 0.3:  # entro 300ms → doppio click
+            if press_duration < 0.3:  # tap veloce
+                if now - last_click_time < 0.5:  # entro 300ms → doppio click
                     mouse.double_click_left()
                     print("Double click")
                     last_click_time = 0
@@ -165,14 +167,14 @@ def detect_right_clicking(hand_landmarks):
     thumb_mcp_x = hand_landmarks.landmark[2].x
     
     gesture = (middle_finger_tip_y > middle_finger_mcp_y and
-        thumb_pip_x < thumb_mcp_x)
+        thumb_pip_x > thumb_mcp_x)
     if gesture and not right_click_active:
         mouse.click_right()
         print("Right click")
         right_click_active = True
     elif not gesture:
         right_click_active = False
-
+right_click_active = False
 
 def detect_thumb_down(hand_landmarks, n_hands=1):
     thumb_tip = hand_landmarks.landmark[4].y
@@ -183,7 +185,7 @@ def detect_thumb_down(hand_landmarks, n_hands=1):
         middle_finger_mcp = hand_landmarks.landmark[9]
         ring_finger_mcp = hand_landmarks.landmark[13]
         pinky_mcp = hand_landmarks.landmark[17]
-        if (index_finger_mcp.y > middle_finger_mcp.y > ring_finger_mcp.y > pinky_mcp.y):
+        if (index_finger_mcp.y > middle_finger_mcp.y > ring_finger_mcp.y > pinky_mcp.y) and (thumb_tip > index_finger_mcp.y):
             if n_hands == 1:
                 mouse.scroll_vertical(-1)
             return True
@@ -191,13 +193,14 @@ def detect_thumb_down(hand_landmarks, n_hands=1):
         
 def detect_thumb_up(hand_landmarks, n_hands=1):
     thumb_tip = hand_landmarks.landmark[4].y
+    thumb_ip = hand_landmarks.landmark[3].y
     thumb_mcp = hand_landmarks.landmark[2].y
-    if thumb_tip < thumb_mcp:
+    if thumb_tip < thumb_ip < thumb_mcp:
         index_finger_mcp = hand_landmarks.landmark[5]
         middle_finger_mcp = hand_landmarks.landmark[9]
         ring_finger_mcp = hand_landmarks.landmark[13]
         pinky_mcp = hand_landmarks.landmark[17]
-        if (index_finger_mcp.y < middle_finger_mcp.y < ring_finger_mcp.y < pinky_mcp.y):
+        if (index_finger_mcp.y < middle_finger_mcp.y < ring_finger_mcp.y < pinky_mcp.y) and (thumb_tip < index_finger_mcp.y):
             if n_hands == 1:
                 mouse.scroll_vertical(1)
             return True
