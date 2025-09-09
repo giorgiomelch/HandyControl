@@ -40,7 +40,7 @@ def main():
                     if end_loop:
                         break 
 
-            #frame = hand_controller.draw_overlay(frame)
+            frame = hand_controller.draw_overlay(frame)
             frame = cv2.flip(frame, 1)
             cv2.imshow("MediaPipe Hands", frame)
 

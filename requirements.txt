@@ -1,0 +1,5 @@
+
+
+Se in ubuntu usare x11 per vedere il cursore
+
+sudo apt-get install portaudio19-dev
