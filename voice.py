@@ -7,7 +7,7 @@ class VoiceListener:
     def __init__(self, model_path="models/vosk-model-it-0.22", samplerate=16000):
         self.model = Model(model_path)
         commands = ["comando control a", "comando control s", "comando control v",
-            "comando control c", "comando control tab",
+            "comando control c", "comando control tab", "comando enter",
             "comando invio", "comando esci", "comando tab", "comando alt tab"]
         self.recognizer = KaldiRecognizer(self.model, samplerate, json.dumps(commands))
         self.audio_q = queue.Queue()
