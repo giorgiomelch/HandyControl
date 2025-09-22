@@ -28,7 +28,7 @@ keyboard = Controller()
 def execute_command(text: str):
     text = text.lower()
 
-    if "comando invio" in text:
+    if "comando invio" in text or "comando enter" in text:
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
         print("Premuto ENTER")
