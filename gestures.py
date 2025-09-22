@@ -39,12 +39,12 @@ class HandController:
             detect_thumb_up(hand)
 
     def handle_two_hands(self, hand1, hand2):
-        if (detect_thumb_down(hand1, 2) and is_hand_closed(hand2)) or (detect_thumb_down(hand2, 2) and is_hand_closed(hand1)):
+        if detect_thumb_down(hand1) and detect_thumb_down(hand2):
+            return True
+        elif (detect_thumb_down(hand1, 2) and is_hand_closed(hand2)) or (detect_thumb_down(hand2, 2) and is_hand_closed(hand1)):
             mouse.zoom_out()
         elif (detect_thumb_up(hand1, 2) and is_hand_closed(hand2)) or (detect_thumb_up(hand2, 2) and is_hand_closed(hand1)):
             mouse.zoom_in()
-        elif detect_thumb_down(hand1) and detect_thumb_down(hand2):
-            return True
         return False 
 
     def draw_overlay(self, frame):
@@ -188,36 +188,47 @@ def detect_right_clicking(hand_landmarks):
     elif not gesture:
         right_click_active = False
 right_click_active = False
+last_scroll_time = 0
+scroll_cooldown = 0.2  # 200ms tra uno scroll e l'altro
 
 def detect_thumb_down(hand_landmarks, n_hands=1):
+    global last_scroll_time
     thumb_tip = hand_landmarks.landmark[4].y
     thumb_ip = hand_landmarks.landmark[3].y
     thumb_mcp = hand_landmarks.landmark[2].y
+    now = time.time()
+    
     if thumb_tip > thumb_ip > thumb_mcp:
         index_finger_mcp = hand_landmarks.landmark[5]
         middle_finger_mcp = hand_landmarks.landmark[9]
         ring_finger_mcp = hand_landmarks.landmark[13]
         pinky_mcp = hand_landmarks.landmark[17]
         if (index_finger_mcp.y > middle_finger_mcp.y > ring_finger_mcp.y > pinky_mcp.y) and (thumb_tip > index_finger_mcp.y):
-            if n_hands == 1:
+            if n_hands == 1 and now - last_scroll_time > scroll_cooldown:
                 mouse.scroll_vertical(-1)
+                last_scroll_time = now
             return True
     return False
-        
+
 def detect_thumb_up(hand_landmarks, n_hands=1):
+    global last_scroll_time
     thumb_tip = hand_landmarks.landmark[4].y
     thumb_ip = hand_landmarks.landmark[3].y
     thumb_mcp = hand_landmarks.landmark[2].y
+    now = time.time()
+    
     if thumb_tip < thumb_ip < thumb_mcp:
         index_finger_mcp = hand_landmarks.landmark[5]
         middle_finger_mcp = hand_landmarks.landmark[9]
         ring_finger_mcp = hand_landmarks.landmark[13]
         pinky_mcp = hand_landmarks.landmark[17]
         if (index_finger_mcp.y < middle_finger_mcp.y < ring_finger_mcp.y < pinky_mcp.y) and (thumb_tip < index_finger_mcp.y):
-            if n_hands == 1:
+            if n_hands == 1 and now - last_scroll_time > scroll_cooldown:
                 mouse.scroll_vertical(1)
+                last_scroll_time = now
             return True
     return False
+
 
 
 def detect_ok_sign(hand_landmarks, ok_sign_state, threshold=0.05):
